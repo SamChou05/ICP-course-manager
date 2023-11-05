@@ -1,0 +1,13 @@
+{
+    "canisters": {
+        "ICP-course_manager": {
+            "type": "custom",
+            "main": "src/index.ts",
+            "candid": "src/index.did",
+            "build": "npx azle ICP-course_manager",
+            "wasm": ".azle/ICP-course_manager/ICP-course_manager.wasm",
+            "gzip": true
+        }
+    }
+}
+
