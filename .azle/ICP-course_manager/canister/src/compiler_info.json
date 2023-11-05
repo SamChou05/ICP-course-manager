@@ -1,0 +1,1 @@
+{"canister_methods":{"queries":[{"name":"readUsers","composite":false},{"name":"readUserIdByUsername","composite":false},{"name":"readUserById","composite":false},{"name":"readCourses","composite":false},{"name":"readCourseById","composite":false}],"updates":[{"name":"createUser"},{"name":"deleteUser"},{"name":"enrollCourse"},{"name":"deleteCourse"}],"callbacks":{}}}
