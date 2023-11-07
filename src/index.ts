@@ -24,7 +24,6 @@ const course = Record({
 const coursePayload = Record({
     title: text,
     description: text,
-    assigned_to: text,
 })
 
 const CourseError = Variant({
@@ -36,6 +35,8 @@ let users = StableBTreeMap(Principal, User, 0);
 let courses = StableBTreeMap(text, course, 1);
 
 export default Canister({
+
+    //User Functions
     createUser: update([text], User, (username) => {
         const id = generateId();
         const user: typeof User = {
@@ -52,21 +53,6 @@ export default Canister({
     readUsers: query([], Vec(text), () => {
         // Explicitly declare the type of the user parameter as User
         return users.values().map((user: typeof User) => user.username);
-    }),
-    readUserIdByUsername: query([text], Opt(Principal), (username) => {
-        // Iterate over all users and return the ID of the user with the matching username
-        for (const [userId, user] of users.entries()) {
-            if (user.username === username) {
-                return { Some: userId }; // Return the ID wrapped in a Some variant
-            }
-        }
-        
-        // If no user is found with the given username, return None
-        return { None: null };
-    }),
-    
-    readUserById: query([Principal], Opt(User), (id) => {
-        return users.get(id);
     }),
     deleteUser: update([Principal], Result(User, CourseError), (id) => {
         const userOpt = users.get(id);
@@ -87,7 +73,36 @@ export default Canister({
     
         return Ok(user);
     }),
+
+    //Course Functions
+    createCourse: update([coursePayload, Principal], Result(course, CourseError), (courseData, creatorId) => {
+        // Check if the creator user exists
+        const userOpt = users.get(creatorId);
+        if ('None' in userOpt) {
+            return Err({
+                UserDoesNotExist: creatorId
+            });
+        }
     
+        // Generate a new course ID
+        const courseId = generateTextId();
+    
+        // Construct the new course object
+        const newCourse: typeof course = {
+            creator: creatorId,
+            id: courseId,
+            title: courseData.title,
+            description: courseData.description,
+            created_date: ic.time(),
+            updated_at: ic.time(),
+        };
+    
+        // Insert the new course into the courses data store
+        courses.insert(courseId, newCourse);
+    
+        // Return the newly created course
+        return Ok(newCourse);
+    }),
     
     enrollCourse: update(
         [Principal, coursePayload],
@@ -141,9 +156,7 @@ export default Canister({
     readCourses: query([], Vec(course), () => {
         return courses.values();
     }),
-    readCourseById: query([text], Opt(course), (id) => {
-        return courses.get(id);
-    }),
+    
     deleteCourse: update(
         [Principal],
         Result(course, CourseError),
@@ -182,6 +195,26 @@ export default Canister({
         }
     ),
 
+    /*
+    readUserIdByUsername: query([text], Opt(Principal), (username) => {
+        // Iterate over all users and return the ID of the user with the matching username
+        for (const [userId, user] of users.entries()) {
+            if (user.username === username) {
+                return { Some: userId }; // Return the ID wrapped in a Some variant
+            }
+        }
+        
+        // If no user is found with the given username, return None
+        return { None: null };
+    }),
+
+    readUserById: query([Principal], Opt(User), (id) => {
+        return users.get(id);
+    }),
+    readCourseById: query([text], Opt(course), (id) => {
+        return courses.get(id);
+    }),
+    */
     
 });
 

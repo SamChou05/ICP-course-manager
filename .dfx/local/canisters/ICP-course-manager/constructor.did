@@ -1,0 +1,9 @@
+service: () -> {
+    createCourse: (record {title:text; description:text}, principal) -> (variant {Ok:record {id:text; title:text; updated_at:nat64; creator:principal; description:text; created_date:nat64}; Err:variant {UserDoesNotExist:principal; CourseDoesNotExist:principal}});
+    createUser: (text) -> (record {id:principal; username:text; createdAt:nat64; courseIds:vec text});
+    deleteCourse: (principal) -> (variant {Ok:record {id:text; title:text; updated_at:nat64; creator:principal; description:text; created_date:nat64}; Err:variant {UserDoesNotExist:principal; CourseDoesNotExist:principal}});
+    deleteUser: (principal) -> (variant {Ok:record {id:principal; username:text; createdAt:nat64; courseIds:vec text}; Err:variant {UserDoesNotExist:principal; CourseDoesNotExist:principal}});
+    enrollCourse: (principal, record {title:text; description:text}) -> (variant {Ok:record {id:text; title:text; updated_at:nat64; creator:principal; description:text; created_date:nat64}; Err:variant {UserDoesNotExist:principal; CourseDoesNotExist:principal}});
+    readCourses: () -> (vec record {id:text; title:text; updated_at:nat64; creator:principal; description:text; created_date:nat64}) query;
+    readUsers: () -> (vec text) query;
+}
