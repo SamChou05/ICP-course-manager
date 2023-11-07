@@ -10,9 +10,7 @@ const User = Record({
     username: text
 });
 
-
 const course = Record({
-    creator: Principal,
     id: text,
     title: text,
     description: text,
@@ -27,9 +25,10 @@ const coursePayload = Record({
 })
 
 const CourseError = Variant({
-    CourseDoesNotExist: Principal,
+    CourseDoesNotExist: text, // Changed from Principal to text
     UserDoesNotExist: Principal
 });
+
 
 let users = StableBTreeMap(Principal, User, 0);
 let courses = StableBTreeMap(text, course, 1);
@@ -75,21 +74,12 @@ export default Canister({
     }),
 
     //Course Functions
-    createCourse: update([coursePayload, Principal], Result(course, CourseError), (courseData, creatorId) => {
-        // Check if the creator user exists
-        const userOpt = users.get(creatorId);
-        if ('None' in userOpt) {
-            return Err({
-                UserDoesNotExist: creatorId
-            });
-        }
-    
+    createCourse: update([coursePayload], Result(course, CourseError), (courseData) => {
         // Generate a new course ID
         const courseId = generateTextId();
     
         // Construct the new course object
         const newCourse: typeof course = {
-            creator: creatorId,
             id: courseId,
             title: courseData.title,
             description: courseData.description,
@@ -104,10 +94,11 @@ export default Canister({
         return Ok(newCourse);
     }),
     
+    
     enrollCourse: update(
-        [Principal, coursePayload],
+        [Principal, text], // The second parameter is now the course ID as text
         Result(course, CourseError),
-        (userId, newCourseData) => {
+        (userId, courseId) => {
             // Check if the user exists
             const userOpt = users.get(userId);
             if ('None' in userOpt) {
@@ -116,84 +107,33 @@ export default Canister({
                 });
             }
     
-            // Get the user from the Option type
-            const user = userOpt.Some;
-    
-            // Generate a new course ID
-            const courseId = generateTextId(); // Assuming you have a generateTextId function that creates a unique ID for the course
-    
-            // Construct the new course object
-            const newCourse: typeof course = {
-                creator: userId, // the creator is the user who is enrolling
-                id: courseId,
-                title: newCourseData.title,
-                description: newCourseData.description,
-                created_date: ic.time(),
-                updated_at: ic.time(),
-            };
-    
-            // Insert the new course into the courses data store
-            courses.insert(courseId, newCourse);
-    
-            // Update the user's list of course IDs
-            // ... inside enrollCourse function
-            // Update the user's list of course IDs
-            const updatedUser: typeof User = {
-                ...user,
-                courseIds: [...user.courseIds, courseId] // courseId is already a text
-            };
-
-            // Update the user record in the users data store
-            users.insert(updatedUser.id, updatedUser);
-            // ...
-
-    
-            // Return the newly created course
-            return Ok(newCourse);
-        }
-    ),
-
-    readCourses: query([], Vec(course), () => {
-        return courses.values();
-    }),
-    
-    deleteCourse: update(
-        [Principal],
-        Result(course, CourseError),
-        (id) => {
-            const courseOpt = courses.get(id);
-
+            // Check if the course exists
+            const courseOpt = courses.get(courseId);
             if ('None' in courseOpt) {
-                return Err({ CourseDoesNotExist: id });
-            }
-
-            const course = courseOpt.Some;
-
-            const userOpt = users.get(course.userId);
-
-            if ('None' in userOpt) {
                 return Err({
-                    UserDoesNotExist: course.userId
+                    CourseDoesNotExist: courseId
                 });
             }
-
+    
+            // Get the user and course from the Option type
             const user = userOpt.Some;
-
+            const enrolledCourse = courseOpt.Some;
+    
+            // Update the user's list of course IDs
             const updatedUser: typeof User = {
                 ...user,
-                courseIds: user.course.filter(
-                    (courseId:any) =>
-                        courseId.toText() !== course.id.toText()
-                )
+                courseIds: [...user.courseIds, courseId]
             };
-
+    
+            // Update the user record in the users data store
             users.insert(updatedUser.id, updatedUser);
-
-            courses.remove(id);
-
-            return Ok(course);
+    
+            // Return the enrolled course
+            return Ok(enrolledCourse);
         }
     ),
+    
+    
 
     /*
     readUserIdByUsername: query([text], Opt(Principal), (username) => {

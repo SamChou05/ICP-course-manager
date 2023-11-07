@@ -99560,7 +99560,6 @@ var User = Record2({
     username: text
 });
 var course = Record2({
-    creator: Principal3,
     id: text,
     title: text,
     description: text,
@@ -99572,7 +99571,8 @@ var coursePayload = Record2({
     description: text
 });
 var CourseError = Variant2({
-    CourseDoesNotExist: Principal3,
+    CourseDoesNotExist: text,
+    // Changed from Principal to text
     UserDoesNotExist: Principal3
 });
 var users = StableBTreeMap(Principal3, User, 0);
@@ -99613,18 +99613,10 @@ var src_default = Canister({
     }),
     //Course Functions
     createCourse: update([
-        coursePayload,
-        Principal3
-    ], Result(course, CourseError), (courseData, creatorId)=>{
-        const userOpt = users.get(creatorId);
-        if ("None" in userOpt) {
-            return Err({
-                UserDoesNotExist: creatorId
-            });
-        }
+        coursePayload
+    ], Result(course, CourseError), (courseData)=>{
         const courseId = generateTextId();
         const newCourse = {
-            creator: creatorId,
             id: courseId,
             title: courseData.title,
             description: courseData.description,
@@ -99636,26 +99628,23 @@ var src_default = Canister({
     }),
     enrollCourse: update([
         Principal3,
-        coursePayload
-    ], Result(course, CourseError), (userId, newCourseData)=>{
+        text
+    ], // The second parameter is now the course ID as text
+    Result(course, CourseError), (userId, courseId)=>{
         const userOpt = users.get(userId);
         if ("None" in userOpt) {
             return Err({
                 UserDoesNotExist: userId
             });
         }
+        const courseOpt = courses.get(courseId);
+        if ("None" in courseOpt) {
+            return Err({
+                CourseDoesNotExist: courseId
+            });
+        }
         const user = userOpt.Some;
-        const courseId = generateTextId();
-        const newCourse = {
-            creator: userId,
-            // the creator is the user who is enrolling
-            id: courseId,
-            title: newCourseData.title,
-            description: newCourseData.description,
-            created_date: ic.time(),
-            updated_at: ic.time()
-        };
-        courses.insert(courseId, newCourse);
+        const enrolledCourse = courseOpt.Some;
         const updatedUser = _extends({}, user, {
             courseIds: [
                 ...user.courseIds,
@@ -99663,34 +99652,7 @@ var src_default = Canister({
             ]
         });
         users.insert(updatedUser.id, updatedUser);
-        return Ok(newCourse);
-    }),
-    readCourses: query([], Vec2(course), ()=>{
-        return courses.values();
-    }),
-    deleteCourse: update([
-        Principal3
-    ], Result(course, CourseError), (id2)=>{
-        const courseOpt = courses.get(id2);
-        if ("None" in courseOpt) {
-            return Err({
-                CourseDoesNotExist: id2
-            });
-        }
-        const course2 = courseOpt.Some;
-        const userOpt = users.get(course2.userId);
-        if ("None" in userOpt) {
-            return Err({
-                UserDoesNotExist: course2.userId
-            });
-        }
-        const user = userOpt.Some;
-        const updatedUser = _extends({}, user, {
-            courseIds: user.course.filter((courseId)=>courseId.toText() !== course2.id.toText())
-        });
-        users.insert(updatedUser.id, updatedUser);
-        courses.remove(id2);
-        return Ok(course2);
+        return Ok(enrolledCourse);
     })
 });
 function generateId() {

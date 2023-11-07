@@ -1,23 +1,19 @@
 export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'createCourse' : IDL.Func(
-        [
-          IDL.Record({ 'title' : IDL.Text, 'description' : IDL.Text }),
-          IDL.Principal,
-        ],
+        [IDL.Record({ 'title' : IDL.Text, 'description' : IDL.Text })],
         [
           IDL.Variant({
             'Ok' : IDL.Record({
               'id' : IDL.Text,
               'title' : IDL.Text,
               'updated_at' : IDL.Nat64,
-              'creator' : IDL.Principal,
               'description' : IDL.Text,
               'created_date' : IDL.Nat64,
             }),
             'Err' : IDL.Variant({
               'UserDoesNotExist' : IDL.Principal,
-              'CourseDoesNotExist' : IDL.Principal,
+              'CourseDoesNotExist' : IDL.Text,
             }),
           }),
         ],
@@ -35,26 +31,6 @@ export const idlFactory = ({ IDL }) => {
         ],
         [],
       ),
-    'deleteCourse' : IDL.Func(
-        [IDL.Principal],
-        [
-          IDL.Variant({
-            'Ok' : IDL.Record({
-              'id' : IDL.Text,
-              'title' : IDL.Text,
-              'updated_at' : IDL.Nat64,
-              'creator' : IDL.Principal,
-              'description' : IDL.Text,
-              'created_date' : IDL.Nat64,
-            }),
-            'Err' : IDL.Variant({
-              'UserDoesNotExist' : IDL.Principal,
-              'CourseDoesNotExist' : IDL.Principal,
-            }),
-          }),
-        ],
-        [],
-      ),
     'deleteUser' : IDL.Func(
         [IDL.Principal],
         [
@@ -67,50 +43,30 @@ export const idlFactory = ({ IDL }) => {
             }),
             'Err' : IDL.Variant({
               'UserDoesNotExist' : IDL.Principal,
-              'CourseDoesNotExist' : IDL.Principal,
+              'CourseDoesNotExist' : IDL.Text,
             }),
           }),
         ],
         [],
       ),
     'enrollCourse' : IDL.Func(
-        [
-          IDL.Principal,
-          IDL.Record({ 'title' : IDL.Text, 'description' : IDL.Text }),
-        ],
+        [IDL.Principal, IDL.Text],
         [
           IDL.Variant({
             'Ok' : IDL.Record({
               'id' : IDL.Text,
               'title' : IDL.Text,
               'updated_at' : IDL.Nat64,
-              'creator' : IDL.Principal,
               'description' : IDL.Text,
               'created_date' : IDL.Nat64,
             }),
             'Err' : IDL.Variant({
               'UserDoesNotExist' : IDL.Principal,
-              'CourseDoesNotExist' : IDL.Principal,
+              'CourseDoesNotExist' : IDL.Text,
             }),
           }),
         ],
         [],
-      ),
-    'readCourses' : IDL.Func(
-        [],
-        [
-          IDL.Vec(
-            IDL.Record({
-              'id' : IDL.Text,
-              'title' : IDL.Text,
-              'updated_at' : IDL.Nat64,
-              'creator' : IDL.Principal,
-              'description' : IDL.Text,
-              'created_date' : IDL.Nat64,
-            })
-          ),
-        ],
-        ['query'],
       ),
     'readUsers' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
   });

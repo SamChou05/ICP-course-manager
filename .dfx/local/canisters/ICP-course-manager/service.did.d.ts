@@ -3,20 +3,19 @@ import type { ActorMethod } from '@dfinity/agent';
 
 export interface _SERVICE {
   'createCourse' : ActorMethod<
-    [{ 'title' : string, 'description' : string }, Principal],
+    [{ 'title' : string, 'description' : string }],
     {
         'Ok' : {
           'id' : string,
           'title' : string,
           'updated_at' : bigint,
-          'creator' : Principal,
           'description' : string,
           'created_date' : bigint,
         }
       } |
       {
         'Err' : { 'UserDoesNotExist' : Principal } |
-          { 'CourseDoesNotExist' : Principal }
+          { 'CourseDoesNotExist' : string }
       }
   >,
   'createUser' : ActorMethod<
@@ -27,23 +26,6 @@ export interface _SERVICE {
       'createdAt' : bigint,
       'courseIds' : Array<string>,
     }
-  >,
-  'deleteCourse' : ActorMethod<
-    [Principal],
-    {
-        'Ok' : {
-          'id' : string,
-          'title' : string,
-          'updated_at' : bigint,
-          'creator' : Principal,
-          'description' : string,
-          'created_date' : bigint,
-        }
-      } |
-      {
-        'Err' : { 'UserDoesNotExist' : Principal } |
-          { 'CourseDoesNotExist' : Principal }
-      }
   >,
   'deleteUser' : ActorMethod<
     [Principal],
@@ -57,38 +39,24 @@ export interface _SERVICE {
       } |
       {
         'Err' : { 'UserDoesNotExist' : Principal } |
-          { 'CourseDoesNotExist' : Principal }
+          { 'CourseDoesNotExist' : string }
       }
   >,
   'enrollCourse' : ActorMethod<
-    [Principal, { 'title' : string, 'description' : string }],
+    [Principal, string],
     {
         'Ok' : {
           'id' : string,
           'title' : string,
           'updated_at' : bigint,
-          'creator' : Principal,
           'description' : string,
           'created_date' : bigint,
         }
       } |
       {
         'Err' : { 'UserDoesNotExist' : Principal } |
-          { 'CourseDoesNotExist' : Principal }
+          { 'CourseDoesNotExist' : string }
       }
-  >,
-  'readCourses' : ActorMethod<
-    [],
-    Array<
-      {
-        'id' : string,
-        'title' : string,
-        'updated_at' : bigint,
-        'creator' : Principal,
-        'description' : string,
-        'created_date' : bigint,
-      }
-    >
   >,
   'readUsers' : ActorMethod<[], Array<string>>,
 }
