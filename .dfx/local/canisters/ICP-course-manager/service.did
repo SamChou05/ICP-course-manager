@@ -52,4 +52,5 @@ service : {
       },
     );
   readUsers : () -> (vec text) query;
+  readUsersByUsername : (text) -> (vec principal) query;
 }

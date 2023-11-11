@@ -72,6 +72,15 @@ export default Canister({
     
         return Ok(user);
     }),
+    readUsersByUsername: query([text], Vec(Principal), (searchUsername) => {
+        // Filter the users to only include those with the same username
+        const filteredUsers = users.values().filter((user: typeof User) => user.username === searchUsername);
+    
+        // Map the filtered users to their IDs
+        const userIds = filteredUsers.map((user: typeof User) => user.id);
+    
+        return userIds;
+    }),
 
     //Course Functions
     createCourse: update([coursePayload], Result(course, CourseError), (courseData) => {
@@ -135,19 +144,9 @@ export default Canister({
     
     
 
+    
+ 
     /*
-    readUserIdByUsername: query([text], Opt(Principal), (username) => {
-        // Iterate over all users and return the ID of the user with the matching username
-        for (const [userId, user] of users.entries()) {
-            if (user.username === username) {
-                return { Some: userId }; // Return the ID wrapped in a Some variant
-            }
-        }
-        
-        // If no user is found with the given username, return None
-        return { None: null };
-    }),
-
     readUserById: query([Principal], Opt(User), (id) => {
         return users.get(id);
     }),

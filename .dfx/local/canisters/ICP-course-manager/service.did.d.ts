@@ -59,4 +59,5 @@ export interface _SERVICE {
       }
   >,
   'readUsers' : ActorMethod<[], Array<string>>,
+  'readUsersByUsername' : ActorMethod<[string], Array<Principal>>,
 }

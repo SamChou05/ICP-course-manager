@@ -69,6 +69,11 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'readUsers' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
+    'readUsersByUsername' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(IDL.Principal)],
+        ['query'],
+      ),
   });
 };
 export const init = ({ IDL }) => { return []; };

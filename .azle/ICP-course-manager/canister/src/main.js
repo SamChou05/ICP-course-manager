@@ -99611,6 +99611,13 @@ var src_default = Canister({
         users.remove(user.id);
         return Ok(user);
     }),
+    readUsersByUsername: query([
+        text
+    ], Vec2(Principal3), (searchUsername)=>{
+        const filteredUsers = users.values().filter((user)=>user.username === searchUsername);
+        const userIds = filteredUsers.map((user)=>user.id);
+        return userIds;
+    }),
     //Course Functions
     createCourse: update([
         coursePayload
