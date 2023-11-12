@@ -3,6 +3,9 @@ import { Canister, query, text, update, Void, nat, nat64 , Vec,Record, Principal
 // This is a global variable that is stored on the heap
 // We're using a Map to associate an ID with each message
 //let courses: Map<text, text> = new Map();
+const yoyo = ({
+    
+})
 const User = Record({
     id: Principal,
     createdAt: nat64,
@@ -49,6 +52,7 @@ export default Canister({
 
         return user;
     }),
+    //test 
     readUsers: query([], Vec(text), () => {
         // Explicitly declare the type of the user parameter as User
         return users.values().map((user: typeof User) => user.username);
