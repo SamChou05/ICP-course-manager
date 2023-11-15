@@ -4,13 +4,19 @@ import { Canister, query, text, update, Void, nat, nat64 , Vec,Record, Principal
 // We're using a Map to associate an ID with each message
 //let courses: Map<text, text> = new Map();
 const yoyo = ({
-    
+
 })
 const User = Record({
     id: Principal,
     createdAt: nat64,
     courseIds: Vec(text), // Changed from Vec(Principal) to Vec(text)
     username: text
+});
+
+const CourseInfo = Record({
+    id: text,
+    title: text,
+    description: text
 });
 
 const course = Record({
@@ -145,11 +151,22 @@ export default Canister({
             return Ok(enrolledCourse);
         }
     ),
-    
-    
+
+    readCourses: query([], Vec(Record({
+        id: text,
+        title: text,
+        description: text
+    })), () => {
+        return courses.values().map((Course: typeof course) => {
+            return {
+                id: Course.id,
+                title: Course.title,
+                description: Course.description
+            };
+        });
+    }),
 
     
- 
     /*
     readUserById: query([Principal], Opt(User), (id) => {
         return users.get(id);

@@ -58,6 +58,10 @@ export interface _SERVICE {
           { 'CourseDoesNotExist' : string }
       }
   >,
+  'readCourses' : ActorMethod<
+    [],
+    Array<{ 'id' : string, 'title' : string, 'description' : string }>
+  >,
   'readUsers' : ActorMethod<[], Array<string>>,
   'readUsersByUsername' : ActorMethod<[string], Array<Principal>>,
 }

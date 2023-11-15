@@ -99559,6 +99559,11 @@ var User = Record2({
     // Changed from Vec(Principal) to Vec(text)
     username: text
 });
+var CourseInfo = Record2({
+    id: text,
+    title: text,
+    description: text
+});
 var course = Record2({
     id: text,
     title: text,
@@ -99592,6 +99597,7 @@ var src_default = Canister({
         users.insert(user.id, user);
         return user;
     }),
+    //test 
     readUsers: query([], Vec2(text), ()=>{
         return users.values().map((user)=>user.username);
     }),
@@ -99660,6 +99666,19 @@ var src_default = Canister({
         });
         users.insert(updatedUser.id, updatedUser);
         return Ok(enrolledCourse);
+    }),
+    readCourses: query([], Vec2(Record2({
+        id: text,
+        title: text,
+        description: text
+    })), ()=>{
+        return courses.values().map((Course)=>{
+            return {
+                id: Course.id,
+                title: Course.title,
+                description: Course.description
+            };
+        });
     })
 });
 function generateId() {

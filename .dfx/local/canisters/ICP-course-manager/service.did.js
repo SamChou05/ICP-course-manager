@@ -68,6 +68,19 @@ export const idlFactory = ({ IDL }) => {
         ],
         [],
       ),
+    'readCourses' : IDL.Func(
+        [],
+        [
+          IDL.Vec(
+            IDL.Record({
+              'id' : IDL.Text,
+              'title' : IDL.Text,
+              'description' : IDL.Text,
+            })
+          ),
+        ],
+        ['query'],
+      ),
     'readUsers' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'readUsersByUsername' : IDL.Func(
         [IDL.Text],

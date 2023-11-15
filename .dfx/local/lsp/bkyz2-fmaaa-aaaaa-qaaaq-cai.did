@@ -51,6 +51,9 @@ service : {
         };
       },
     );
+  readCourses : () -> (
+      vec record { id : text; title : text; description : text },
+    ) query;
   readUsers : () -> (vec text) query;
   readUsersByUsername : (text) -> (vec principal) query;
 }

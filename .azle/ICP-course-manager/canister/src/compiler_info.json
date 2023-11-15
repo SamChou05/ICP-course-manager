@@ -1,1 +1,1 @@
-{"canister_methods":{"queries":[{"name":"readUsers","composite":false},{"name":"readUsersByUsername","composite":false}],"updates":[{"name":"createUser"},{"name":"deleteUser"},{"name":"createCourse"},{"name":"enrollCourse"}],"callbacks":{}}}
+{"canister_methods":{"queries":[{"name":"readUsers","composite":false},{"name":"readUsersByUsername","composite":false},{"name":"readCourses","composite":false}],"updates":[{"name":"createUser"},{"name":"deleteUser"},{"name":"createCourse"},{"name":"enrollCourse"}],"callbacks":{}}}
