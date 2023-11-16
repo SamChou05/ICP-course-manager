@@ -81,6 +81,19 @@ export const idlFactory = ({ IDL }) => {
         ],
         ['query'],
       ),
+    'readUserCourseTitles' : IDL.Func(
+        [IDL.Principal],
+        [
+          IDL.Variant({
+            'Ok' : IDL.Vec(IDL.Text),
+            'Err' : IDL.Variant({
+              'UserDoesNotExist' : IDL.Principal,
+              'CourseDoesNotExist' : IDL.Text,
+            }),
+          }),
+        ],
+        ['query'],
+      ),
     'readUsers' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'readUsersByUsername' : IDL.Func(
         [IDL.Text],

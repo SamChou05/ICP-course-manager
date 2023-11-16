@@ -54,6 +54,15 @@ service : {
   readCourses : () -> (
       vec record { id : text; title : text; description : text },
     ) query;
+  readUserCourseTitles : (principal) -> (
+      variant {
+        Ok : vec text;
+        Err : variant {
+          UserDoesNotExist : principal;
+          CourseDoesNotExist : text;
+        };
+      },
+    ) query;
   readUsers : () -> (vec text) query;
   readUsersByUsername : (text) -> (vec principal) query;
 }

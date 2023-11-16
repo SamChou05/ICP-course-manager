@@ -99679,6 +99679,29 @@ var src_default = Canister({
                 description: Course.description
             };
         });
+    }),
+    readUserCourseTitles: query([
+        Principal3
+    ], Result(Vec2(text), CourseError), (userId)=>{
+        const userOpt = users.get(userId);
+        if ("None" in userOpt) {
+            return Err({
+                UserDoesNotExist: userId
+            });
+        }
+        const user = userOpt.Some;
+        let courseTitles = [];
+        user.courseIds.forEach((courseId)=>{
+            const courseOpt = courses.get(courseId);
+            if ("None" in courseOpt) {
+                return Err({
+                    CourseDoesNotExist: courseId
+                });
+            }
+            const course2 = courseOpt.Some;
+            courseTitles.push(course2.title);
+        });
+        return Ok(courseTitles);
     })
 });
 function generateId() {

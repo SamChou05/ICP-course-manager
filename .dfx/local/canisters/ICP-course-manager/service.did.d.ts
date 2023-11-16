@@ -62,6 +62,14 @@ export interface _SERVICE {
     [],
     Array<{ 'id' : string, 'title' : string, 'description' : string }>
   >,
+  'readUserCourseTitles' : ActorMethod<
+    [Principal],
+    { 'Ok' : Array<string> } |
+      {
+        'Err' : { 'UserDoesNotExist' : Principal } |
+          { 'CourseDoesNotExist' : string }
+      }
+  >,
   'readUsers' : ActorMethod<[], Array<string>>,
   'readUsersByUsername' : ActorMethod<[string], Array<Principal>>,
 }

@@ -3,9 +3,7 @@ import { Canister, query, text, update, Void, nat, nat64 , Vec,Record, Principal
 // This is a global variable that is stored on the heap
 // We're using a Map to associate an ID with each message
 //let courses: Map<text, text> = new Map();
-const yoyo = ({
 
-})
 const User = Record({
     id: Principal,
     createdAt: nat64,
@@ -166,15 +164,40 @@ export default Canister({
         });
     }),
 
-    
-    /*
-    readUserById: query([Principal], Opt(User), (id) => {
-        return users.get(id);
+    readUserCourseTitles: query([Principal], Result(Vec(text), CourseError), (userId) => {
+        // Check if the user exists
+        const userOpt = users.get(userId);
+        if ('None' in userOpt) {
+            return Err({
+                UserDoesNotExist: userId
+            });
+        }
+
+        // Get the user from the Option type
+        const user = userOpt.Some;
+
+        // Initialize an array to hold course titles
+        let courseTitles: text[] = [];
+
+        // Loop through the user's enrolled course IDs
+        user.courseIds.forEach((courseId:any) => {
+            // Retrieve the course using the courseId
+            const courseOpt = courses.get(courseId);
+            if ('None' in courseOpt) {
+                // This shouldn't happen normally, but handle it just in case
+                return Err({
+                    CourseDoesNotExist: courseId
+                });
+            }
+
+            // Get the course and add its title to the list
+            const course = courseOpt.Some;
+            courseTitles.push(course.title);
+        });
+
+        // Return the list of course titles
+        return Ok(courseTitles);
     }),
-    readCourseById: query([text], Opt(course), (id) => {
-        return courses.get(id);
-    }),
-    */
     
 });
 

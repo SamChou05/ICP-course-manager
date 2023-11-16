@@ -4,6 +4,7 @@ service: () -> {
     deleteUser: (principal) -> (variant {Ok:record {id:principal; username:text; createdAt:nat64; courseIds:vec text}; Err:variant {UserDoesNotExist:principal; CourseDoesNotExist:text}});
     enrollCourse: (principal, text) -> (variant {Ok:record {id:text; title:text; updated_at:nat64; description:text; created_date:nat64}; Err:variant {UserDoesNotExist:principal; CourseDoesNotExist:text}});
     readCourses: () -> (vec record {id:text; title:text; description:text}) query;
+    readUserCourseTitles: (principal) -> (variant {Ok:vec text; Err:variant {UserDoesNotExist:principal; CourseDoesNotExist:text}}) query;
     readUsers: () -> (vec text) query;
     readUsersByUsername: (text) -> (vec principal) query;
 }
