@@ -1,20 +1,10 @@
 import { Canister, query, text, update, Void, nat, nat64 , Vec,Record, Principal, StableBTreeMap, Variant, Opt,ic, Result} from 'azle';
 
-// This is a global variable that is stored on the heap
-// We're using a Map to associate an ID with each message
-//let courses: Map<text, text> = new Map();
-
 const User = Record({
     id: Principal,
     createdAt: nat64,
-    courseIds: Vec(text), // Changed from Vec(Principal) to Vec(text)
+    courseIds: Vec(text), 
     username: text
-});
-
-const CourseInfo = Record({
-    id: text,
-    title: text,
-    description: text
 });
 
 const course = Record({
@@ -32,17 +22,21 @@ const coursePayload = Record({
 })
 
 const CourseError = Variant({
-    CourseDoesNotExist: text, // Changed from Principal to text
+    CourseDoesNotExist: text, 
     UserDoesNotExist: Principal
 });
 
-
+//Map of users
 let users = StableBTreeMap(Principal, User, 0);
+
+//Map of courses 
 let courses = StableBTreeMap(text, course, 1);
 
 export default Canister({
 
     //User Functions
+
+    //Creates a User
     createUser: update([text], User, (username) => {
         const id = generateId();
         const user: typeof User = {
@@ -56,11 +50,13 @@ export default Canister({
 
         return user;
     }),
-    //test 
+    
+    //Returns the map of all active users
     readUsers: query([], Vec(text), () => {
-        // Explicitly declare the type of the user parameter as User
         return users.values().map((user: typeof User) => user.username);
     }),
+
+    //Deletes a user given the UserID
     deleteUser: update([Principal], Result(User, CourseError), (id) => {
         const userOpt = users.get(id);
     
@@ -80,6 +76,8 @@ export default Canister({
     
         return Ok(user);
     }),
+
+    //Gives a users UserID based on their Username, in case they forgot their ID
     readUsersByUsername: query([text], Vec(Principal), (searchUsername) => {
         // Filter the users to only include those with the same username
         const filteredUsers = users.values().filter((user: typeof User) => user.username === searchUsername);
@@ -91,6 +89,8 @@ export default Canister({
     }),
 
     //Course Functions
+
+    //Creates a new course with course title and description. Also generates a unique courseID
     createCourse: update([coursePayload], Result(course, CourseError), (courseData) => {
         // Generate a new course ID
         const courseId = generateTextId();
@@ -111,9 +111,9 @@ export default Canister({
         return Ok(newCourse);
     }),
     
-    
+    //Given a userID and a courseID enroll the user in the course
     enrollCourse: update(
-        [Principal, text], // The second parameter is now the course ID as text
+        [Principal, text], 
         Result(course, CourseError),
         (userId, courseId) => {
             // Check if the user exists
@@ -149,7 +149,8 @@ export default Canister({
             return Ok(enrolledCourse);
         }
     ),
-
+    
+    //Returns the courseID, title, and description of all created courses (courses that users can enroll in)
     readCourses: query([], Vec(Record({
         id: text,
         title: text,
@@ -164,6 +165,7 @@ export default Canister({
         });
     }),
 
+    //Returns all the courses that a user is enrolled in 
     readUserCourseTitles: query([Principal], Result(Vec(text), CourseError), (userId) => {
         // Check if the user exists
         const userOpt = users.get(userId);
@@ -198,9 +200,12 @@ export default Canister({
         // Return the list of course titles
         return Ok(courseTitles);
     }),
+
     
+
 });
 
+//creates unique ID's for users
 function generateId(): Principal {
     const randomBytes = new Array(29)
         .fill(0)
@@ -217,6 +222,7 @@ function Ok<T>(value: T): Result<T, never> {
     return { Err: error };
   }
 
+  //creates unique ID's for courses
   function generateTextId(): text {
     const timestamp = Date.now().toString();
     const randomPortion = Math.random().toString(36).substring(2, 10);
