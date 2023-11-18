@@ -149,21 +149,66 @@ export default Canister({
             return Ok(enrolledCourse);
         }
     ),
+
+    unenrollUserFromCourse: update(
+        [text, Principal], 
+        Result(Void, CourseError),
+        (courseId, userId) => {
+            // Check if the course exists
+            const courseOpt = courses.get(courseId);
+            if (!courseOpt || 'None' in courseOpt) {
+                return Err({
+                    CourseDoesNotExist: courseId
+                });
+            }
     
-    //Returns the courseID, title, and description of all created courses (courses that users can enroll in)
-    readCourses: query([], Vec(Record({
-        id: text,
-        title: text,
-        description: text
-    })), () => {
-        return courses.values().map((Course: typeof course) => {
-            return {
-                id: Course.id,
-                title: Course.title,
-                description: Course.description
+            // Check if the user exists
+            const userOpt = users.get(userId);
+            if (!userOpt || 'None' in userOpt) {
+                return Err({
+                    UserDoesNotExist: userId
+                });
+            }
+    
+            // Get the user from the Option type
+            const user = userOpt.Some;
+    
+            // Remove the course ID from the user's list of courses
+            const updatedCourseIds = user.courseIds.filter(id => id !== courseId);
+    
+            // Update the user's list of course IDs
+            const updatedUser: typeof User = {
+                ...user,
+                courseIds: updatedCourseIds
             };
-        });
-    }),
+    
+            // Update the user record in the users data store
+            users.insert(updatedUser.id, updatedUser);
+    
+            // Return success
+            return Ok(user);
+        }
+    ),
+    
+    
+    
+    
+
+        
+        //Returns the courseID, title, and description of all created courses (courses that users can enroll in)
+        readCourses: query([], Vec(Record({
+            id: text,
+            title: text,
+            description: text
+        })), () => {
+            return courses.values().map((Course: typeof course) => {
+                return {
+                    id: Course.id,
+                    title: Course.title,
+                    description: Course.description
+                };
+            });
+        }),
 
     //Returns all the courses that a user is enrolled in 
     readUserCourseTitles: query([Principal], Result(Vec(text), CourseError), (userId) => {
@@ -200,9 +245,6 @@ export default Canister({
         // Return the list of course titles
         return Ok(courseTitles);
     }),
-
-    
-
 });
 
 //creates unique ID's for users
