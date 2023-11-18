@@ -174,7 +174,7 @@ export default Canister({
             const user = userOpt.Some;
     
             // Remove the course ID from the user's list of courses
-            const updatedCourseIds = user.courseIds.filter(id => id !== courseId);
+            const updatedCourseIds = user.courseIds.filter((id:any) => id !== courseId);
     
             // Update the user's list of course IDs
             const updatedUser: typeof User = {
@@ -189,11 +189,6 @@ export default Canister({
             return Ok(user);
         }
     ),
-    
-    
-    
-    
-
         
         //Returns the courseID, title, and description of all created courses (courses that users can enroll in)
         readCourses: query([], Vec(Record({
